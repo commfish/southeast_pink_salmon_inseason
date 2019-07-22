@@ -3,22 +3,22 @@ sw_forecast <- 29   # forecast through week
 year_forecast <- 2019   # forecast year
 year.subfolder <- "2019_inseason" #subfolder for forecast through week
 sw.subfolder <- "SW29" #subfolder for forecast through week
-data.directory <-file.path('southeast', 'inseason_pink_salmon','data', year.subfolder, sw.subfolder)
+data.directory <-file.path('data', year.subfolder, sw.subfolder)
 
 
 # create file structure to save inseason estimates
-if(!dir.exists(file.path("southeast", "inseason_pink_salmon", "output", year.subfolder))){
-  dir.create(file.path("southeast", "inseason_pink_salmon","output",year.subfolder))}
-if(!dir.exists(file.path("southeast", "inseason_pink_salmon", "output", year.subfolder, sw.subfolder))){
-  dir.create(file.path("southeast", "inseason_pink_salmon","output",year.subfolder, sw.subfolder))}
+if(!dir.exists(file.path("output", year.subfolder))){
+  dir.create(file.path("output",year.subfolder))}
+if(!dir.exists(file.path("output", year.subfolder, sw.subfolder))){
+  dir.create(file.path("output",year.subfolder, sw.subfolder))}
 
-if(!dir.exists(file.path("southeast", "inseason_pink_salmon", "figs", year.subfolder))){
-  dir.create(file.path("southeast", "inseason_pink_salmon","figs",year.subfolder))}
-if(!dir.exists(file.path("southeast", "inseason_pink_salmon", "figs", year.subfolder, sw.subfolder))){
-  dir.create(file.path("southeast", "inseason_pink_salmon","figs",year.subfolder, sw.subfolder))}
+if(!dir.exists(file.path("figs", year.subfolder))){
+  dir.create(file.path("figs",year.subfolder))}
+if(!dir.exists(file.path("figs", year.subfolder, sw.subfolder))){
+  dir.create(file.path("figs",year.subfolder, sw.subfolder))}
 
 # load ----
-source("southeast/inseason_pink_salmon/code/functions.r")
+source("code/functions.r")
 
 # data ----
 sse<- read.csv(file.path(data.directory,'sse_1983_2018.csv'), header=TRUE, as.is=TRUE, strip.white=TRUE) 
@@ -48,7 +48,7 @@ full_data %>%
 
 fig_data<-rbind(x, avg)
 chart(fig_data) + ggtitle("Cumulative Purse Seine Pink Salmon Harvest \n Southern Southeast Alaska (Districts 1-7)")
-ggsave(file.path("southeast/inseason_pink_salmon/figs",year.subfolder, sw.subfolder,"/",paste("SSE_chart.png")),
+ggsave(file.path("figs",year.subfolder, sw.subfolder,"/",paste("SSE_chart.png")),
        dpi=600, height=6, width=9, units="in")
 
 # likelihood functions ----
@@ -69,11 +69,11 @@ model_select(preds, preds_sex) -> results
 results %>% 
   filter(delta_AICc==0) -> results
 
-write.csv(results,file.path("southeast/inseason_pink_salmon/output",year.subfolder, sw.subfolder,"/",paste("SSE.csv")), row.names=TRUE)
+write.csv(results,file.path("output",year.subfolder, sw.subfolder,"/",paste("SSE.csv")), row.names=TRUE)
 
 # figures
 model_fig(data_year) + ggtitle("SSE")
-ggsave(file.path("southeast/inseason_pink_salmon/figs",year.subfolder, sw.subfolder,"/",paste("SSE.png")),
+ggsave(file.path("figs",year.subfolder, sw.subfolder,"/",paste("SSE.png")),
        dpi=600, height=6, width=9, units="in")
 
 
