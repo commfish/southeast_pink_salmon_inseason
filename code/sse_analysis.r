@@ -64,10 +64,6 @@ f_pred(data, params_sex, sex = TRUE) -> preds_sex
 # model selection ----
 model_select(preds, preds_sex) -> results
 
-# top models
-results %>% 
-  filter(delta_AICc==0) -> results
-
 write.csv(results,file.path("output",year.subfolder, sw.subfolder,"/",paste("SSE.csv")), row.names=TRUE)
 
 # figures
