@@ -10,8 +10,8 @@ theme_set(theme_sleek())
 
 # sex ratio deviation from mean
 sex_dev <- function(x){
-  x %>% 
-    group_by(week) %>% 
+ x %>% 
+    group_by(week) %>%
     mutate(sex_ratio = ifelse(!is.na(sex_ratio), sex_ratio - mean(sex_ratio, na.rm = T), 0)) %>% 
     group_by(year) %>% 
     mutate(sex_dev = cumsum(sex_ratio)) 
@@ -119,13 +119,17 @@ model_select <- function(preds, preds_sex){
   preds %>% 
     group_by(week) %>% 
     mutate(forecast = mean(int)+mean(slope)*catch) %>% 
-    mutate(model = "int + cum") %>% 
-    bind_rows(preds_sex %>% 
-                 group_by(week) %>% 
-                 mutate(forecast = (int+slope*catch)* (1 + mean(sex) * mean(sex_dev))) %>% 
-                 mutate(model = "int + cum + sex")) %>% 
-    spread(model, forecast) %>%
-    filter (year == year_forecast)-> forecast
+    mutate(model = "int_cum") -> model1
+  
+  preds_sex %>% 
+    group_by(week) %>% 
+    mutate(forecast = (mean(int)+mean(slope)*catch)*(1 + mean(sex) * sex_dev),  
+          model = "int_cum_sex") -> model2
+  
+  x<- rbind(model1,model2)
+  
+    x %>% 
+      filter (year == year_forecast)-> forecast
   
  
   preds %>% 
@@ -135,7 +139,7 @@ model_select <- function(preds, preds_sex){
               k = 2) %>% 
       mutate(AIC = n * (lssq - log(n)) + 2 * k,
              AICc = AIC + (2 * k * (k + 1)) / (n - k - 1),
-             model = "int + cum") %>% 
+             model = "int_cum") %>% 
       bind_rows(
       preds_sex %>% 
       group_by(week) %>% 
@@ -144,15 +148,15 @@ model_select <- function(preds, preds_sex){
                 k = 3) %>% 
       mutate(AIC = n * (lssq - log(n)) + 2 * k,
              AICc = AIC + (2 * k * (k + 1)) / (n - k - 1),
-             model = "int + cum + sex")) %>% 
+             model = "int_cum_sex")) %>% 
     group_by(week) %>% 
     mutate(delta_AICc = AICc - min(AICc),
            exp_delta = exp(-delta_AICc / 2),
            AICc_weight = exp_delta / sum(exp_delta)) %>% 
     arrange(week, model) %>% 
     left_join(forecast) %>% 
-    mutate(m1 = case_when(model=="int + cum" ~ `int + cum` * AICc_weight),
-           m2 = case_when(model=="int + cum + sex" ~ `int + cum + sex` * AICc_weight)) %>% 
+    mutate(m1 = case_when(model=="int_cum" ~ forecast * AICc_weight),
+           m2 = case_when(model=="int_cum_sex" ~ forecast * AICc_weight)) %>% 
     group_by(week) %>% 
     mutate(model_avg = sum(m1,m2, na.rm = T)) %>% 
     dplyr::select(-m1, -m2) %>%

@@ -43,8 +43,7 @@ data_year %>%
 
 full_data %>% 
   dplyr::select(year, week, catch) %>%
-  filter(year == year_forecast) %>%
-  filter (week < sw_forecast) -> x
+  filter(year == year_forecast & week <= sw_forecast) -> x
 
 fig_data<-rbind(x, avg)
 chart(fig_data) + ggtitle("Cumulative Purse Seine Pink Salmon Harvest \n Northern Southeast Alaska (Districts 9-14)")
@@ -64,10 +63,6 @@ f_pred(data, params_sex, sex = TRUE) -> preds_sex
 
 # model selection ----
 model_select(preds, preds_sex) -> results
-
-# top models
-results %>% 
-  filter(delta_AICc==0) -> results
 
 write.csv(results,file.path("output",year.subfolder, sw.subfolder,"/",paste("NSE.csv")), row.names=TRUE)
 

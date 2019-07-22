@@ -43,8 +43,7 @@ data_year %>%
 
 full_data %>% 
   dplyr::select(year, week, catch) %>%
-  filter(year == year_forecast) %>%
-  filter (week < sw_forecast) -> x
+  filter(year == year_forecast & week <= sw_forecast) -> x
 
 fig_data<-rbind(x, avg)
 chart(fig_data) + ggtitle("Cumulative Purse Seine Pink Salmon Harvest \n Southern Southeast Alaska (Districts 1-7)")
