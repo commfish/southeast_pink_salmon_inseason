@@ -67,7 +67,7 @@ model_select(preds, preds_sex) -> results
 write.csv(results,file.path("output",year.subfolder, sw.subfolder,"/",paste("SSE.csv")), row.names=TRUE)
 
 # figures
-model_fig(data) + ggtitle("SSE")
+model_fig(full_data) + ggtitle("SSE")
 ggsave(file.path("figs",year.subfolder, sw.subfolder,"/",paste("SSE.png")),
        dpi=600, height=6, width=9, units="in")
 model_fig2(data) + ggtitle("SSE")

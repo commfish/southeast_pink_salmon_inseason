@@ -183,8 +183,9 @@ chart<- function(data) {
     ylab("Millions of Pink Salmon")
 }
 
-formula <- y ~ x
+
 model_fig <- function(data) {
+  formula <- y ~ x
   data %>% 
     group_split(week) %>%
     map_df(~{fit = lm(tot_catch ~ catch, data = .)
@@ -207,10 +208,9 @@ model_fig <- function(data) {
     ylab("Total Catch (millions)")
 }
 
-formula <- y ~ x
 model_fig2 <- function(data) {
   g1 <- subset(data, year == year_forecast)
-  
+  formula <- y ~ x
   data %>% 
     group_split(week) %>%
     map_df(~{fit = lm(tot_catch ~ catch, data = .)
@@ -219,6 +219,33 @@ model_fig2 <- function(data) {
                pi = predict(fit, ., interval = 'prediction'))
     }) %>% 
     ggplot(data=., aes(catch, tot_catch)) + geom_point(alpha=1/5) +
+    geom_point(data=g1, colour="red") +
+    geom_text_repel(data=g1, label=year_forecast, size=3) +
+    facet_wrap(~week, dir = "v", ncol = 3, scales = "free") +
+    geom_line(aes(catch, ci.fit)) +
+    geom_ribbon(aes(ymin = (ci.lwr), ymax = (ci.upr)), alpha = 0.4) +
+    geom_ribbon(aes(ymin = (pi.lwr), ymax = (pi.upr)), alpha = 0.2) +
+    stat_poly_eq(formula = formula ,  
+                 eq.with.lhs = "italic(hat(y))~`=`~",
+                 aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "*plain(\",\")~")),
+                 parse = TRUE, size = 3, vjust=1) +
+    expand_limits(x = 0, y = 0) +
+    xlab("Cumulative Catch (millions)") +
+    ylab("Total Catch (millions)")
+}
+
+
+model_fig3 <- function(data) {
+  g1 <- subset(data, year == year_forecast)
+  formula <- y ~ x1*(1+x2)
+  data %>% 
+    group_split(week) %>%
+    map_df(~{fit = lm(tot_catch ~ catch*(1+sex_dev), data = .)
+    
+    data.frame(., ci = predict(fit, ., interval = 'confidence'),
+               pi = predict(fit, ., interval = 'prediction'))
+    }) %>% 
+    ggplot(data=., aes(catch, tot_catch)) + geom_point(alpha=1/5) + 
     geom_point(data=g1, colour="red") +
     geom_text_repel(data=g1, label=year_forecast, size=3) +
     facet_wrap(~week, dir = "v", ncol = 3, scales = "free") +
