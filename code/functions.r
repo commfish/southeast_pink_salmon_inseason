@@ -219,7 +219,7 @@ model_fig2 <- function(data) {
                pi = predict(fit, ., interval = 'prediction'))
     }) %>% 
     ggplot(data=., aes(catch, tot_catch)) + geom_point(alpha=1/5) +
-    geom_point(data=g1, colour="red") +
+    geom_point(data=g1,aes(catch, tot_catch), colour="red") +
     geom_text_repel(data=g1, label=year_forecast, size=3) +
     facet_wrap(~week, dir = "v", ncol = 3, scales = "free") +
     geom_line(aes(catch, ci.fit)) +
