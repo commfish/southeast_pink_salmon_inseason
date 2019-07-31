@@ -6,6 +6,7 @@ library(broom)
 library(FNGr)
 library(lubridate)
 library(ggpmisc)
+library(ggrepel)
 theme_set(theme_sleek())
 
 # sex ratio deviation from mean
